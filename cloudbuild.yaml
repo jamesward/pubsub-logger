@@ -5,6 +5,7 @@ steps:
     - --builder
     - jkutner/buildpacks:18
     - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
+    - --publish
 
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
@@ -20,4 +21,4 @@ steps:
     - $REPO_NAME
 
 images:
-  - gcr.io/$PROJECT_ID/log-all
+  - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
