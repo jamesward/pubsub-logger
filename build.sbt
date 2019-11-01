@@ -12,3 +12,5 @@ libraryDependencies := Seq(
   "com.typesafe.play" %% "play-netty-server" % "2.7.3",
   "org.slf4j" % "slf4j-simple" % "1.7.21",
 )
+
+Global / cancelable := false

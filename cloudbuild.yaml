@@ -1,0 +1,23 @@
+steps:
+- name: 'gcr.io/$PROJECT_ID/pack'
+  args:
+    - build
+    - --builder
+    - heroku/buildpacks:18
+    - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - beta
+    - run
+    - deploy
+    - --image=gcr.io/$PROJECT_ID/$REPO_NAME:$COMMIT_SHA
+    - --platform=managed
+    - --project=$PROJECT_ID
+    - --region=us-central1
+    - --allow-unauthenticated
+    - --memory=256Mi
+    - $REPO_NAME
+
+images:
+  - gcr.io/$PROJECT_ID/log-all
