@@ -1,4 +1,7 @@
-import play.api.mvc.{AnyContentAsRaw, Results}
+import play.api.http.Writeable
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Results.EmptyContent
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, AnyContentAsJson, AnyContentAsRaw, Codec, Results}
 import play.api.routing.Router
 import play.api.routing.sird._
 import play.api.{BuiltInComponents, Logger, Mode}
@@ -17,13 +20,19 @@ object ServerApp extends App {
       Logger(this.getClass).logger.info(request.method)
       Logger(this.getClass).logger.info(request.path)
       Logger(this.getClass).logger.info(request.headers.toString)
-      val body = request.body match {
+      val logBody = request.body match {
         case r: AnyContentAsRaw => r.raw.asBytes().map(_.utf8String).toString
         case _ => request.body.toString
       }
-      Logger(this.getClass).logger.info(body)
+      Logger(this.getClass).logger.info(logBody)
 
-      Results.NoContent
+      // todo: this could be better
+      request.body match {
+        case c: AnyContentAsJson => Results.Ok(c.json)
+        case AnyContentAsEmpty => Results.Ok(EmptyContent())
+        case _ => Results.Ok(logBody)
+      }
+
     }
 
     lazy val router = Router.from {
