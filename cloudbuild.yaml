@@ -3,7 +3,7 @@ steps:
   args:
     - build
     - --builder
-    - heroku/buildpacks:18
+    - jkutner/buildpacks:18
     - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
 
 - name: 'gcr.io/cloud-builders/gcloud'
