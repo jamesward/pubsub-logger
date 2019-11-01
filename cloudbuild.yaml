@@ -19,6 +19,3 @@ steps:
     - --allow-unauthenticated
     - --memory=256Mi
     - $REPO_NAME
-
-images:
-  - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
