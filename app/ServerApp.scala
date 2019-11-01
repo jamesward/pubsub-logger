@@ -1,7 +1,5 @@
-import play.api.http.Writeable
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.EmptyContent
-import play.api.mvc.{AnyContent, AnyContentAsEmpty, AnyContentAsJson, AnyContentAsRaw, Codec, Results}
+import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, AnyContentAsRaw, AnyContentAsText, Results}
 import play.api.routing.Router
 import play.api.routing.sird._
 import play.api.{BuiltInComponents, Logger, Mode}
@@ -29,6 +27,7 @@ object ServerApp extends App {
       // todo: this could be better
       request.body match {
         case c: AnyContentAsJson => Results.Ok(c.json)
+        case c: AnyContentAsText => Results.Ok(c.txt)
         case AnyContentAsEmpty => Results.Ok(EmptyContent())
         case _ => Results.Ok(logBody)
       }
