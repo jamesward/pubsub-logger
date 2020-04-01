@@ -2,27 +2,31 @@ import play.api.mvc.Results.EmptyContent
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsJson, AnyContentAsRaw, AnyContentAsText, Results}
 import play.api.routing.Router
 import play.api.routing.sird._
-import play.api.{BuiltInComponents, Logger, Mode}
-import play.core.server.{NettyServerComponents, ServerConfig}
+import play.api.{Logger, Mode}
+import play.core.server.{DefaultAkkaHttpServerComponents, ServerConfig}
+
+import scala.util.Try
 
 object ServerApp extends App {
 
-  val components = new NettyServerComponents with BuiltInComponents {
+  val components = new DefaultAkkaHttpServerComponents {
+    private[this] lazy val port = sys.env.get("PORT").flatMap(s => Try(s.toInt).toOption).getOrElse(9000)
+    private[this] lazy val mode = if (configuration.get[String]("play.http.secret.key").contains("changeme")) Mode.Dev else Mode.Prod
 
-    val port = sys.env.getOrElse("PORT", "8080").toInt
-    val mode = if (configuration.get[String]("play.http.secret.key").contains("changeme")) Mode.Dev else Mode.Prod
+    override lazy val serverConfig: ServerConfig = ServerConfig(port = Some(port), mode = mode)
 
-    override lazy val serverConfig = ServerConfig(port = Some(port), mode = mode)
+    private val logger = Logger(this.getClass).logger
 
-    val action = Action { request =>
-      Logger(this.getClass).logger.info(request.method)
-      Logger(this.getClass).logger.info(request.path)
-      Logger(this.getClass).logger.info(request.headers.toString)
+    private val action = Action { request =>
+      logger.info(s"method = ${request.method}")
+      logger.info(s"secure = ${request.secure}")
+      logger.info(s"path = ${request.path}")
+      logger.info(request.headers.toString)
       val logBody = request.body match {
         case r: AnyContentAsRaw => r.raw.asBytes().map(_.utf8String).toString
         case _ => request.body.toString
       }
-      Logger(this.getClass).logger.info(logBody)
+      logger.info(logBody)
 
       // todo: this could be better
       request.body match {
@@ -31,20 +35,15 @@ object ServerApp extends App {
         case AnyContentAsEmpty => Results.Ok(EmptyContent())
         case _ => Results.Ok(logBody)
       }
-
     }
 
-    lazy val router = Router.from {
+    override lazy val router: Router = Router.from {
       case GET(_) | POST(_) | PUT(_) | DELETE(_) | PATCH(_) | OPTIONS(_) | HEAD(_) => action
     }
 
-    override def httpFilters = Seq.empty
   }
 
-  val server = components.server
-
-  while (!Thread.currentThread.isInterrupted) {}
-
-  server.stop()
+  // server is lazy so eval it to start it
+  components.server
 
 }
