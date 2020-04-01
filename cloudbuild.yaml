@@ -1,11 +1,6 @@
 steps:
-- name: 'gcr.io/$PROJECT_ID/pack'
-  args:
-    - build
-    - --builder
-    - jkutner/buildpacks:18
-    - gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA
-    - --publish
+- name: 'gcr.io/cloudrun/pack'
+  args: ['build', '--builder=heroku/buildpacks:18', '--publish', 'gcr.io/$PROJECT_ID/log-all:$COMMIT_SHA']
 
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
