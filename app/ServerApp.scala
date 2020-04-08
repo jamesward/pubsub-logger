@@ -21,7 +21,9 @@ object ServerApp extends App {
       logger.info(s"method = ${request.method}")
       logger.info(s"secure = ${request.secure}")
       logger.info(s"path = ${request.path}")
-      logger.info(request.headers.toString)
+      logger.info(s"headers = ${request.headers.toString}")
+      logger.info(s"envs = ${sys.env.toString}")
+
       val logBody = request.body match {
         case r: AnyContentAsRaw => r.raw.asBytes().map(_.utf8String).toString
         case _ => request.body.toString
