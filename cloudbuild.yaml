@@ -1,8 +1,7 @@
 steps:
-- name: 'gcr.io/cloudrun/pack'
-  args: ['build', '--builder=heroku/buildpacks:18', '--publish', 'gcr.io/$PROJECT_ID/pubsub-logger:$COMMIT_SHA']
+  - name: 'gcr.io/cloudrun/pack'
+    args: ['build', '--builder=heroku/buildpacks:18', '--publish', 'gcr.io/$PROJECT_ID/pubsub-logger:$COMMIT_SHA']
 
-steps:
   - name: ghcr.io/jamesward/easycloudrun
     entrypoint: pubsubhandler
     env:
